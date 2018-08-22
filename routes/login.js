@@ -28,7 +28,7 @@ async function verify(token) {
     return {
         nombre: payload.name,
         email: payload.email,
-        img: payload.img,
+        img: payload.img || payload.picture,
         google: true,
         payload
     };
@@ -45,7 +45,7 @@ app.post('/google', async(req, res) => {
                 mensaje: 'Token no válido'
             });
         });
-
+	
     Usuario.findOne({email: googleUser.email}, (err, usuario) => {
         if (err) {
             return res.status(500).json({
@@ -82,6 +82,7 @@ app.post('/google', async(req, res) => {
             usuario.email = googleUser.email;
             usuario.google = true;
             usuario.password = ":)";
+			console.log(usuario);
 
             usuario.save((err, usuarioGuardado) => {
                 if (err) {

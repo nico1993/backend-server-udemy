@@ -14,7 +14,7 @@ app.get('/', (req, res, next) => {
     let offset = req.query.offset || 0;
     offset = Number(offset); 
 
-    Usuario.find({}, 'nombre email img role')
+    Usuario.find({}, 'nombre email img role google')
         .skip(offset)
         .limit(5)
         .exec(
@@ -40,7 +40,7 @@ app.get('/', (req, res, next) => {
 //=============================================
 //Crear nuevo usuario
 //=============================================
-app.post('/', middleAutenticacion.verificaToken, (req, res) => {
+app.post('/', (req, res) => {
     let body = req.body;
     let usuario = new Usuario({
         nombre: body.nombre,
