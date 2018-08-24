@@ -69,7 +69,7 @@ app.post('/', (req, res) => {
 //=============================================
 //Actualizar usuario
 //=============================================
-app.put('/:id', middleAutenticacion.verificaToken, (req, res) => {
+app.put('/:id', [middleAutenticacion.verificaToken, middleAutenticacion.verificaAdminOMismoUsuario], (req, res) => {
     var id = req.params.id;
 
     Usuario.findById(id, (err, usuario) => {
@@ -112,7 +112,7 @@ app.put('/:id', middleAutenticacion.verificaToken, (req, res) => {
 //=============================================
 //Borrar usuario
 //=============================================
-app.delete('/:id', middleAutenticacion.verificaToken, (req, res) => {
+app.delete('/:id', [middleAutenticacion.verificaToken, middleAutenticacion.verificaAdminRole], (req, res) => {
     let id = req.params.id;
     Usuario.findByIdAndRemove(id, (err, usuario) => {
         if (err) {
