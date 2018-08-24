@@ -34,7 +34,7 @@ async function verify(token) {
     };
 }
 
-app.post('/google', async(req, res) => {
+app.post('/google', async (req, res) => {
 
     let token = req.body.token;
 
@@ -45,8 +45,8 @@ app.post('/google', async(req, res) => {
                 mensaje: 'Token no válido'
             });
         });
-	
-    Usuario.findOne({email: googleUser.email}, (err, usuario) => {
+
+    Usuario.findOne({ email: googleUser.email }, (err, usuario) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
@@ -55,34 +55,31 @@ app.post('/google', async(req, res) => {
             });
         }
 
-        if (usuario) 
-        {
-            if(usuario.google === false)
-            {
+        if (usuario) {
+            if (usuario.google === false) {
                 res.status(400).json({
                     ok: false,
                     mensaje: 'Debe usar la autenticación normal'
                 });
             }
-            else
-            {
+            else {
                 let tokenUser = jwt.sign({ usuario: usuario }, SEED, { expiresIn: 14400 }); //4 hs
                 res.status(200).json({
                     ok: true,
                     usuario: usuario,
-                    token: tokenUser
+                    token: tokenUser,
+                    menu: obtenerMenu(usuario.role)
                 });
             }
         }
-        else
-        {
+        else {
             let usuario = new Usuario();
             usuario.nombre = googleUser.nombre;
             usuario.img = googleUser.img;
             usuario.email = googleUser.email;
             usuario.google = true;
             usuario.password = ":)";
-			console.log(usuario);
+            console.log(usuario);
 
             usuario.save((err, usuarioGuardado) => {
                 if (err) {
@@ -97,7 +94,8 @@ app.post('/google', async(req, res) => {
                 res.status(200).json({
                     ok: true,
                     usuario: usuarioGuardado,
-                    token: tokenUser
+                    token: tokenUser,
+                    menu: obtenerMenu(usuarioGuardado.role)
                 });
             });
         }
@@ -139,9 +137,40 @@ app.post('/', (req, res) => {
             ok: true,
             usuario: usuario,
             token: token,
-            body
+            body,
+            menu: obtenerMenu(usuario.role)
         });
     });
 });
+
+function obtenerMenu(ROLE) {
+    let menu = [
+        {
+            titulo: 'Principal',
+            icon: 'mdi mdi-gauge',
+            submenu: [
+                { titulo: 'Dashboard', url: '/dashboard' },
+                { titulo: 'Progressbar', url: '/progress' },
+                { titulo: 'Graficas', url: '/graficas' },
+                { titulo: 'Promesas', url: '/promesas' },
+                { titulo: 'Rxjs', url: '/rxjs' },
+            ]
+        },
+        {
+            titulo: 'Mantenimientos',
+            icon: 'mdi mdi-folder-lock-open',
+            submenu: [
+                // {titulo: 'Usuarios', url: '/usuarios'},
+                { titulo: 'Hospitales', url: '/hospitales' },
+                { titulo: 'Medicos', url: '/medicos' }
+            ]
+        }
+    ];
+    
+    if (ROLE == "ADMIN_ROLE") {
+        menu[1].submenu.unshift({titulo: 'Usuarios', url: '/usuarios'});
+    }
+    return menu;
+}
 
 module.exports = app;
